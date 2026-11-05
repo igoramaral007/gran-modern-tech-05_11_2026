@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Visão geral · TechStock Manager{% endblock %}
+{% block content %}
+<section class="page-heading heading-row">
+  <div>
+    <div class="eyebrow">PAINEL DE OPERAÇÕES</div>
+    <h1>Visão geral do estoque</h1>
+    <p>Acompanhe seus ativos e mantenha a operação sempre em movimento.</p>
+  </div>
+  <div class="heading-actions">
+    <a class="button button-secondary" href="{{ url_for('new_movement') }}">↕ &nbsp; Registrar movimento</a>
+    <a class="button button-primary" href="{{ url_for('new_product') }}">＋ &nbsp; Novo ativo</a>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="stat-top"><span>Ativos cadastrados</span><span class="stat-icon icon-blue">▦</span></div>
+    <strong>{{ stats.product_count }}</strong><small>itens ativos no catálogo</small>
+  </article>
+  <article class="stat-card">
+    <div class="stat-top"><span>Unidades disponíveis</span><span class="stat-icon icon-green">◫</span></div>
+    <strong>{{ stats.unit_count }}</strong><small>unidades em estoque</small>
+  </article>
+  <article class="stat-card stat-card-alert">
+    <div class="stat-top"><span>Precisam de reposição</span><span class="stat-icon icon-orange">!</span></div>
+    <strong>{{ stats.alert_count }}</strong><small>no limite ou abaixo do mínimo</small>
+  </article>
+</section>
+
+<section class="panel inventory-panel">
+  <div class="panel-heading">
+    <div><h2>Catálogo de ativos</h2><p>Produtos físicos e licenças em um só lugar.</p></div>
+    <span class="record-count">{{ products|length }} ativos</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ATIVO</th><th>CATEGORIA</th><th>FORNECEDOR</th><th>PREÇO UNITÁRIO</th><th>SALDO</th><th>LOCALIZAÇÃO / LICENÇA</th><th></th></tr></thead>
+      <tbody>
+      {% for product in products %}
+        <tr class="{% if product.stock <= product.min_stock %}row-warning{% endif %}">
+          <td><div class="asset-cell"><span class="asset-icon {% if product.item_type == 'Software' %}asset-software{% elif product.item_type == 'Periférico' %}asset-peripheral{% else %}asset-hardware{% endif %}">{% if product.item_type == 'Software' %}⌘{% elif product.item_type == 'Periférico' %}◉{% else %}▤{% endif %}</span><span><strong>{{ product.name }}</strong><small>{{ product.sku }} · {{ product.manufacturer }}</small></span></div></td>
+          <td><span class="category-name">{{ product.category_name }}</span></td>
+          <td>{{ product.supplier_name }}</td>
+          <td>R$ {{ "%.2f"|format(product.price)|replace(".", ",") }}</td>
+          <td><span class="stock-value {% if product.stock <= product.min_stock %}stock-low{% endif %}">{{ product.stock }} <small>/ mín. {{ product.min_stock }}</small></span>{% if product.stock <= product.min_stock %}<span class="warning-badge">Risco de Ruptura / Reposição Necessária</span>{% endif %}</td>
+          <td>{{ product.location }}{% if product.licensing_model %}<small class="location-detail">{{ product.licensing_model }}</small>{% endif %}</td>
+          <td><form method="post" action="{{ url_for('deactivate_product', product_id=product.id) }}" onsubmit="return confirm('Descontinuar este ativo? O histórico será preservado.');"><button class="icon-button" title="Descontinuar ativo" aria-label="Descontinuar {{ product.name }}">···</button></form></td>
+        </tr>
+      {% else %}
+        <tr><td class="empty-state" colspan="7">Nenhum ativo cadastrado. <a href="{{ url_for('new_product') }}">Cadastre o primeiro.</a></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel activity-panel">
+  <div class="panel-heading"><div><h2>Movimentações recentes</h2><p>Últimos registros de entrada e saída.</p></div><a class="text-link" href="{{ url_for('new_movement') }}">Ver operações <span>→</span></a></div>
+  {% if movements %}
+  <div class="activity-list">
+    {% for movement in movements %}
+    <div class="activity-item"><span class="movement-icon {% if movement.operation == 'Entrada' %}movement-in{% else %}movement-out{% endif %}">{{ '↓' if movement.operation == 'Entrada' else '↑' }}</span><div class="activity-description"><strong>{{ movement.operation }} · {{ movement.name }}</strong><small>{{ movement.sku }}{% if movement.note %} · {{ movement.note }}{% endif %}</small></div><span class="activity-quantity {% if movement.operation == 'Entrada' %}quantity-in{% else %}quantity-out{% endif %}">{{ '+' if movement.operation == 'Entrada' else '−' }}{{ movement.quantity }}</span><time>{{ movement.created_at }}</time></div>
+    {% endfor %}
+  </div>
+  {% else %}<div class="empty-activity">As movimentações registradas aparecerão aqui.</div>{% endif %}
+</section>
+{% endblock %}

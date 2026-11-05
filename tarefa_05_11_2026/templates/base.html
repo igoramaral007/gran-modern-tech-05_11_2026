@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TechStock Manager{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <span class="brand-mark">T</span>
+      <span>techstock<span class="brand-light">.manager</span></span>
+    </a>
+    <div class="nav-label">ESPAÇO DE TRABALHO</div>
+    <nav class="navigation">
+      <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+        <span class="nav-icon">▦</span> Visão geral
+      </a>
+      <a class="nav-link {% if request.endpoint == 'new_product' %}active{% endif %}" href="{{ url_for('new_product') }}">
+        <span class="nav-icon">＋</span> Novo ativo
+      </a>
+      <a class="nav-link {% if request.endpoint == 'new_movement' %}active{% endif %}" href="{{ url_for('new_movement') }}">
+        <span class="nav-icon">↕</span> Movimentações
+      </a>
+      <a class="nav-link {% if request.endpoint == 'catalogs' %}active{% endif %}" href="{{ url_for('catalogs') }}">
+        <span class="nav-icon">☷</span> Cadastros de apoio
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="status-dot"></div>
+      <div><strong>Operação ativa</strong><span>Inventário sincronizado</span></div>
+    </div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar">
+      <div class="breadcrumb">TechStore <span>/</span> Operações</div>
+      <div class="operator"><span class="operator-avatar">TS</span><span>Equipe de estoque</span></div>
+    </header>
+    <div class="page-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-stack" aria-live="polite">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}"><span>{{ '✓' if category == 'success' else '!' }}</span>{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+    <footer>TechStock Manager <span>·</span> Controle confiável para cada ativo.</footer>
+  </main>
+</body>
+</html>

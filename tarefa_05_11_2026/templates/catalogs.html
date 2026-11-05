@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Cadastros de apoio · TechStock Manager{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div class="eyebrow">CONFIGURAÇÃO</div>
+  <h1>Cadastros de apoio</h1>
+  <p>Gerencie categorias e fornecedores usados no catálogo de ativos.</p>
+</section>
+<div class="catalog-grid">
+  <section class="panel catalog-panel">
+    <div class="panel-heading"><div><h2>Categorias</h2><p>{{ categories|length }} categorias disponíveis</p></div></div>
+    <form class="inline-create" method="post"><input type="hidden" name="catalog_type" value="category"><input name="name" placeholder="Nome da categoria" required><button class="button button-primary" type="submit">Adicionar</button></form>
+    <div class="catalog-list">{% for category in categories %}<div class="catalog-item"><div><strong>{{ category.name }}</strong><small>{{ category.product_count }} ativos vinculados</small></div><form method="post" action="{{ url_for('delete_catalog_entry', catalog_type='category', catalog_id=category.id) }}"><button class="delete-button" title="Excluir categoria" aria-label="Excluir categoria {{ category.name }}">Excluir</button></form></div>{% else %}<div class="empty-activity">Nenhuma categoria cadastrada.</div>{% endfor %}</div>
+  </section>
+  <section class="panel catalog-panel">
+    <div class="panel-heading"><div><h2>Fornecedores</h2><p>{{ suppliers|length }} parceiros cadastrados</p></div></div>
+    <form class="supplier-create" method="post"><input type="hidden" name="catalog_type" value="supplier"><input name="company_name" placeholder="Razão social" required><input name="cnpj" placeholder="CNPJ" required><div class="supplier-fields"><input name="phone" placeholder="Telefone" required><input name="email" type="email" placeholder="E-mail corporativo" required></div><button class="button button-primary" type="submit">Adicionar fornecedor</button></form>
+    <div class="catalog-list">{% for supplier in suppliers %}<div class="catalog-item"><div><strong>{{ supplier.company_name }}</strong><small>{{ supplier.cnpj }} · {{ supplier.product_count }} ativos vinculados</small></div><form method="post" action="{{ url_for('delete_catalog_entry', catalog_type='supplier', catalog_id=supplier.id) }}"><button class="delete-button" title="Excluir fornecedor" aria-label="Excluir fornecedor {{ supplier.company_name }}">Excluir</button></form></div>{% else %}<div class="empty-activity">Nenhum fornecedor cadastrado.</div>{% endfor %}</div>
+  </section>
+</div>
+{% endblock %}
